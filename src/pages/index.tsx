@@ -3,13 +3,25 @@ import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
 import BusinessCard from "../components/BusinessCard/BusinessCard";
 import { useState } from "react";
+import { useRouter } from "next/router";
+import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
+  const router = useRouter();
   const [inputs, setInputs] = useState({
     title: "",
     website: "",
   });
+
+  const { mutate } = trpc.card.publishCard.useMutation({
+    onSuccess(card) {
+      console.log("PUBLISHED!");
+      router.push(`/c/${card.slug}`);
+    },
+  });
+
+  const publish = () => mutate(inputs);
 
   return (
     <>
@@ -97,6 +109,7 @@ const Home: NextPage = () => {
             {/* Publish Button */}
             <div className="mt-12 flex justify-center">
               <button
+                onClick={publish}
                 type="button"
                 className="rounded-full bg-black/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-black/20"
               >

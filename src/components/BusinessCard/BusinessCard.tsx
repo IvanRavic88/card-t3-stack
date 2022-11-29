@@ -1,14 +1,16 @@
+import { BusinessCard } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import { FC } from "react";
+import type { FC } from "react";
 
 interface BusinessCardProps {
-  inputs: {
+  inputs?: {
     title: string;
     website: string;
   };
+  card?: BusinessCard | null | undefined;
 }
 
-const BusinessCard: FC<BusinessCardProps> = ({ inputs }) => {
+const BusinessCard: FC<BusinessCardProps> = ({ inputs, card }) => {
   /**
    * Credit for this business card design to Hoshua Ward
    * https://codepen.io/joshuaward/pen/YMyPWr
@@ -16,15 +18,22 @@ const BusinessCard: FC<BusinessCardProps> = ({ inputs }) => {
 
   const { data: sessionData } = useSession();
 
-  const front =
-    inputs &&
-    "http://localhost:3000/api/og" +
+  const front = card
+    ? "http://localhost:3000/api/og" +
       "?username=" +
-      sessionData?.user?.name +
+      card.name +
       "&title=" +
-      inputs.title +
+      card.title +
       "&imgSrc=" +
-      sessionData?.user?.image;
+      card.imgSrc
+    : inputs &&
+      "http://localhost:3000/api/og" +
+        "?username=" +
+        sessionData?.user?.name +
+        "&title=" +
+        inputs.title +
+        "&imgSrc=" +
+        sessionData?.user?.image;
 
   return (
     <div className="card">
@@ -49,14 +58,16 @@ const BusinessCard: FC<BusinessCardProps> = ({ inputs }) => {
             {" "}
             <span className="property">name</span>
             <span className="operator">: </span>
-            <span className="string">{sessionData?.user?.name}</span>
+            <span className="string">
+              {card ? card.name : sessionData?.user?.name}
+            </span>
             <span>,</span>
           </div>
           <div className="indent">
             {" "}
             <span className="property">title</span>
             <span className="operator">: </span>
-            <span className="string">{inputs.title}</span>
+            <span className="string">{card ? card.title : inputs?.title}</span>
             <span>,</span>
           </div>
           <div className="indent">
@@ -68,13 +79,17 @@ const BusinessCard: FC<BusinessCardProps> = ({ inputs }) => {
               {" "}
               <span className="property">email</span>
               <span className="operator">: </span>
-              <span className="string">{sessionData?.user?.email}</span>
+              <span className="string">
+                {card ? card.email : sessionData?.user?.email}
+              </span>
               <span>,</span>
             </div>
             <div className="indent">
               <span className="property">website</span>
-              <span className="operator">:</span>
-              <span className="string">{inputs.website}</span>
+              <span className="operator">: </span>
+              <span className="string">
+                {card ? card.website : inputs?.website}
+              </span>
             </div>
             <span>{"}"}</span>
           </div>
